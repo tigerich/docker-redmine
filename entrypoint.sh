@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e
-echo 'debug 001'
+echo 'debug 002'
 
 SSL_CERTIFICATES_DIR="${REDMINE_DATA_DIR}/certs"
 SYSCONF_TEMPLATES_DIR="${SETUP_DIR}/config"
@@ -363,9 +363,8 @@ fi
 
 # due to the nature of docker and its use cases, we allow some time
 # for the database server to come online.
-prog="mysqladmin -h ${DB_HOST} -P ${DB_PORT} -u ${DB_USER} -p {$DB_PASS} status"
+prog="mysqladmin -h${DB_HOST} -u ${DB_USER} -p{$DB_PASS} status"
 echo -e $prog
-${prog} 
 
 timeout=60
 while ! ${prog} >/dev/null 2>&1
