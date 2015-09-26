@@ -363,7 +363,7 @@ fi
 
 # due to the nature of docker and its use cases, we allow some time
 # for the database server to come online.
-prog="mysqladmin -h${DB_HOST} -u ${DB_USER} -p{$DB_PASS} status"
+prog="mysqladmin -h${DB_HOST} -u ${DB_USER} -p$DB_PASS status"
 echo -e $prog
 
 timeout=60
