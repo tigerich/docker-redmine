@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e
-echo 'debug 004'
+echo 'debug 005'
 
 SSL_CERTIFICATES_DIR="${REDMINE_DATA_DIR}/certs"
 SYSCONF_TEMPLATES_DIR="${SETUP_DIR}/config"
@@ -361,11 +361,18 @@ else
   ln -sf ${REDMINE_DATA_DIR}/files
 fi
 
+cmd="ifconfig"
+${cmd}
+
+cmd="netstat -tunlp"
+${cmd}
+
 # due to the nature of docker and its use cases, we allow some time
 # for the database server to come online.
 prog="mysqladmin -h${DB_HOST} -u ${DB_USER} -p$DB_PASS status"
 echo -e $prog
 ${prog}
+
 
 echo 'Waiting for database server to accept connections'
 timeout=60
