@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e
-echo 'debug 002'
+echo 'debug 004'
 
 SSL_CERTIFICATES_DIR="${REDMINE_DATA_DIR}/certs"
 SYSCONF_TEMPLATES_DIR="${SETUP_DIR}/config"
@@ -365,11 +365,13 @@ fi
 # for the database server to come online.
 prog="mysqladmin -h${DB_HOST} -u ${DB_USER} -p$DB_PASS status"
 echo -e $prog
+${prog}
 
+echo 'Waiting for database server to accept connections'
 timeout=60
 while ! ${prog} >/dev/null 2>&1
 do
-  echo -n "Waiting for database server to accept connections" . timeout
+  echo -n '.'
   timeout=$(expr $timeout - 1)
   if [[ $timeout -eq 0 ]]; then
     echo -e "\nCould not connect to database server. Aborting..."
