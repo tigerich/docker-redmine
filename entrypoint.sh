@@ -98,16 +98,7 @@ if [[ -z ${DB_HOST} ]]; then
 fi
 
 # use default port number if it is still not set
-case ${DB_TYPE} in
-  mysql) DB_PORT=${DB_PORT:-3306} ;;
-  postgres) DB_PORT=${DB_PORT:-5432} ;;
-  *)
-    echo "ERROR: "
-    echo "  Please specify the database type in use via the DB_TYPE configuration option."
-    echo "  Accepted values are \"postgres\" or \"mysql\". Aborting..."
-    exit 1
-    ;;
-esac
+DB_PORT=${DB_PORT:-3306} ;
 
 # is a memcached container linked?
 if [[ -n ${MEMCACHED_PORT_11211_TCP_ADDR} ]]; then
@@ -228,18 +219,9 @@ esac
 [[ -f ${USERCONF_TEMPLATES_DIR}/redmine/additional_environment.rb ]] && sudo -HEu ${REDMINE_USER} cp ${USERCONF_TEMPLATES_DIR}/redmine/additional_environment.rb config/additional_environment.rb
 
 # configure database
-case ${DB_TYPE} in
-  postgres)
-    sudo -HEu ${REDMINE_USER} sed 's/{{DB_ADAPTER}}/postgresql/' -i config/database.yml
-    sudo -HEu ${REDMINE_USER} sed 's/{{DB_ENCODING}}/unicode/' -i config/database.yml
-    sudo -HEu ${REDMINE_USER} sed 's/reconnect: false/#reconnect: false/' -i config/database.yml
-    ;;
-  mysql)
-    sudo -HEu ${REDMINE_USER} sed 's/{{DB_ADAPTER}}/mysql2/' -i config/database.yml
-    sudo -HEu ${REDMINE_USER} sed 's/{{DB_ENCODING}}/utf8/' -i config/database.yml
-    sudo -HEu ${REDMINE_USER} sed 's/#reconnect: false/reconnect: false/' -i config/database.yml
-    ;;
-esac
+sudo -HEu ${REDMINE_USER} sed 's/{{DB_ADAPTER}}/mysql2/' -i config/database.yml
+sudo -HEu ${REDMINE_USER} sed 's/{{DB_ENCODING}}/utf8/' -i config/database.yml
+sudo -HEu ${REDMINE_USER} sed 's/#reconnect: false/reconnect: false/' -i config/database.yml
 
 sudo -HEu ${REDMINE_USER} sed 's/{{DB_HOST}}/'"${DB_HOST}"'/' -i config/database.yml
 sudo -HEu ${REDMINE_USER} sed 's/{{DB_PORT}}/'"${DB_PORT}"'/' -i config/database.yml
@@ -380,20 +362,12 @@ fi
 
 # due to the nature of docker and its use cases, we allow some time
 # for the database server to come online.
-case ${DB_TYPE} in
-  mysql)
-    prog="mysqladmin -h ${DB_HOST} -P ${DB_PORT} -u ${DB_USER} ${DB_PASS:+-p$DB_PASS} status"
-    ;;
-  postgres)
-    prog=$(find /usr/lib/postgresql/ -name pg_isready)
-    prog="${prog} -h ${DB_HOST} -p ${DB_PORT} -U ${DB_USER} -d ${DB_NAME} -t 1"
-    ;;
-esac
+prog="mysqladmin -h ${DB_HOST} -P ${DB_PORT} -u ${DB_USER} -p {$DB_PASS} status"
 
 timeout=60
-echo -n "Waiting for database server to accept connections"
 while ! ${prog} >/dev/null 2>&1
 do
+  echo -n "Waiting for database server to accept connections" . timeout
   timeout=$(expr $timeout - 1)
   if [[ $timeout -eq 0 ]]; then
     echo -e "\nCould not connect to database server. Aborting..."
