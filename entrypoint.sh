@@ -361,18 +361,16 @@ else
   ln -sf ${REDMINE_DATA_DIR}/files
 fi
 
-cmd="ifconfig"
+cmd="route"
 ${cmd}
 
-cmd="ping 10.0.0.10 -c 5"
+cmd="netstat -tulpen"
 ${cmd}
 
-cmd="ping 172.17.42.1 -c 5"
-${cmd}
 
 # due to the nature of docker and its use cases, we allow some time
 # for the database server to come online.
-prog="mysqladmin -h${DB_HOST} -u ${DB_USER} -p$DB_PASS status"
+prog="mysqladmin -h$DB_HOST -u$DB_USER -p$DB_PASS status"
 echo -e $prog
 ${prog}
 
