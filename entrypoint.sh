@@ -141,21 +141,6 @@ case ${DB_TYPE} in
     ;;
 esac
 
-# is a memcached container linked?
-if [[ -n ${MEMCACHED_PORT_11211_TCP_ADDR} ]]; then
-  MEMCACHE_HOST=${MEMCACHE_HOST:-${MEMCACHED_PORT_11211_TCP_ADDR}}
-  MEMCACHE_PORT=${MEMCACHE_PORT:-${MEMCACHED_PORT_11211_TCP_PORT}}
-fi
-
-# fallback to using the default memcached port 11211
-MEMCACHE_PORT=${MEMCACHE_PORT:-11211}
-
-# enable / disable memcached
-if [[ -n ${MEMCACHE_HOST} ]]; then
-  MEMCACHE_ENABLED=true
-fi
-MEMCACHE_ENABLED=${MEMCACHE_ENABLED:-false}
-
 case ${REDMINE_HTTPS} in
   true)
     REDMINE_PORT=${REDMINE_PORT:-443}
@@ -285,12 +270,6 @@ if [[ ${REDMINE_HTTPS} == true ]]; then
   sed '/^\s*config\.session_store\s/s/$/, :secure => true/' -i config/application.rb
 fi
 
-# configure memcached
-if [[ ${MEMCACHE_ENABLED} == true ]]; then
-  echo "Enabling memcache..."
-  sed 's/{{MEMCACHE_HOST}}/'"${MEMCACHE_HOST}"'/' -i config/additional_environment.rb
-  sed 's/{{MEMCACHE_PORT}}/'"${MEMCACHE_PORT}"'/' -i config/additional_environment.rb
-fi
 
 # configure nginx
 sed 's/worker_processes .*/worker_processes '"${NGINX_WORKERS}"';/' -i /etc/nginx/nginx.conf
@@ -437,6 +416,8 @@ done
 echo
 
 # migrate database if the redmine version has changed.
+echo 'migrate database if the redmine version has changed'
+
 CURRENT_VERSION=
 [[ -f ${REDMINE_DATA_DIR}/tmp/VERSION ]] && CURRENT_VERSION=$(cat ${REDMINE_DATA_DIR}/tmp/VERSION)
 if [[ ${REDMINE_VERSION} != ${CURRENT_VERSION} ]]; then
@@ -471,6 +452,8 @@ if [[ ${REDMINE_VERSION} != ${CURRENT_VERSION} ]]; then
 fi
 
 # setup cronjobs
+echo '\n\nsetup cronjobs\n'
+
 crontab -u ${REDMINE_USER} -l >/tmp/cron.${REDMINE_USER}
 
 # create a cronjob to periodically fetch commits
@@ -515,6 +498,8 @@ if [[ ${IMAP_ENABLED} == true ]]; then
 fi
 
 # install the cronjobs
+echo '\n\ninstall the cronjobs\n'
+
 crontab -u ${REDMINE_USER} /tmp/cron.${REDMINE_USER}
 rm -rf /tmp/cron.${REDMINE_USER}
 
@@ -524,6 +509,7 @@ ln -sf ${REDMINE_DATA_DIR}/tmp/bundle vendor/bundle
 ln -sf ${REDMINE_DATA_DIR}/tmp/Gemfile.lock Gemfile.lock
 
 # install user plugins
+echo '\n\ninstall user plugins\n'
 if [[ -d ${REDMINE_DATA_DIR}/plugins ]]; then
   echo "Installing plugins..."
   rsync -avq --chown=${REDMINE_USER}:${REDMINE_USER} ${REDMINE_DATA_DIR}/plugins/ ${REDMINE_INSTALL_DIR}/plugins/
@@ -633,5 +619,3 @@ case ${1} in
     fi
     ;;
 esac
-
-exit 0
