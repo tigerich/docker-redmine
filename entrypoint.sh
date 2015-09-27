@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e
-echo 'debug 005'
+echo 'debug 006'
 
 SSL_CERTIFICATES_DIR="${REDMINE_DATA_DIR}/certs"
 SYSCONF_TEMPLATES_DIR="${SETUP_DIR}/config"
@@ -364,7 +364,10 @@ fi
 cmd="ifconfig"
 ${cmd}
 
-cmd="netstat -tunlp"
+cmd="ping 10.0.0.10 -c 5"
+${cmd}
+
+cmd="ping 172.17.42.1 -c 5"
 ${cmd}
 
 # due to the nature of docker and its use cases, we allow some time
