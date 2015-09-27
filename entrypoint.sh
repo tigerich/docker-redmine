@@ -498,7 +498,7 @@ if [[ ${IMAP_ENABLED} == true ]]; then
 fi
 
 # install the cronjobs
-echo '\n\ninstall the cronjobs\n'
+echo 'install the cronjobs'
 
 crontab -u ${REDMINE_USER} /tmp/cron.${REDMINE_USER}
 rm -rf /tmp/cron.${REDMINE_USER}
@@ -509,7 +509,7 @@ ln -sf ${REDMINE_DATA_DIR}/tmp/bundle vendor/bundle
 ln -sf ${REDMINE_DATA_DIR}/tmp/Gemfile.lock Gemfile.lock
 
 # install user plugins
-echo '\n\ninstall user plugins\n'
+echo 'install user plugins'
 if [[ -d ${REDMINE_DATA_DIR}/plugins ]]; then
   echo "Installing plugins..."
   rsync -avq --chown=${REDMINE_USER}:${REDMINE_USER} ${REDMINE_DATA_DIR}/plugins/ ${REDMINE_INSTALL_DIR}/plugins/
@@ -555,12 +555,14 @@ else
 fi
 
 # install user themes
+echo 'install user themes'
 if [[ -d ${REDMINE_DATA_DIR}/themes ]]; then
   echo "Installing themes..."
   rsync -avq --chown=${REDMINE_USER}:${REDMINE_USER} ${REDMINE_DATA_DIR}/themes/ ${REDMINE_INSTALL_DIR}/public/themes/
 fi
 
 # execute entrypoint customization script
+echo 'execute entrypoint customization script'
 if [[ -f ${REDMINE_DATA_DIR}/entrypoint.custom.sh ]]; then
   echo "Executing entrypoint.custom.sh..."
   . ${REDMINE_DATA_DIR}/entrypoint.custom.sh
@@ -619,3 +621,5 @@ case ${1} in
     fi
     ;;
 esac
+
+exit 0
