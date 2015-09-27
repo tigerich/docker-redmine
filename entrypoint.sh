@@ -562,7 +562,6 @@ if [[ -d ${REDMINE_DATA_DIR}/themes ]]; then
 fi
 
 # execute entrypoint customization script
-echo 'execute entrypoint customization script'
 if [[ -f ${REDMINE_DATA_DIR}/entrypoint.custom.sh ]]; then
   echo "Executing entrypoint.custom.sh..."
   . ${REDMINE_DATA_DIR}/entrypoint.custom.sh
@@ -576,6 +575,8 @@ appStart () {
   rm -rf tmp/sockets/redmine.socket
 
   # start supervisord
+  echo 'start supervisord'
+  cat /etc/supervisor/supervisord.conf
   exec /usr/bin/supervisord -n -c /etc/supervisor/supervisord.conf
 }
 
